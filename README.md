@@ -22,3 +22,8 @@ This CiviCRM extension prevents deletion of contacts that have external ID value
     1. Grant the following permissions:
         * *"CiviCRM: delete contacts"*
         * *"CiviCRM External ID Keeper: delete contacts with external ID values"*
+
+## Requirements
+
+* CiviCRM 4.7+
+* PHP 5.4+
