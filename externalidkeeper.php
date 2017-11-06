@@ -4,6 +4,22 @@ require_once 'externalidkeeper.civix.php';
 use CRM_Externalidkeeper_ExtensionUtil as E;
 
 /**
+ * Implements hook_civicrm_permission().
+ *
+ * @param array $permissions
+ *
+ * @link
+ *   https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_permission/
+ */
+function externalidkeeper_civicrm_permission(&$permissions) {
+  $prefix = ts('CiviCRM External ID Keeper') . ': ';
+  $permissions['delete contacts with external ID values'] = array(
+    $prefix . ts('delete contacts with external ID values'),
+    ts('Grant this permission (in conjunction with "delete contacts") to administrators who need the ability to delete all contacts. Note: with the External ID Keeper extension installed, the "delete contacts" permission is changed to only allow users to delete contacts without external ID values.'),
+  );
+}
+
+/**
  * Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
