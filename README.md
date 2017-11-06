@@ -27,3 +27,18 @@ This CiviCRM extension prevents deletion of contacts that have external ID value
 
 * CiviCRM 4.7+
 * PHP 5.4+
+
+## Limitations
+
+The safeguard which prevents contacts from being deleted is only in place on the form to delete contacts. Thus...
+
+This extension effectively prevents contact deletions in the following scenarios:
+
+* clicking the "Delete" or "Delete Permanently" buttons on contact records.
+* choosing the "Delete Contacts" or "Delete Permanently" actions from a contact search.
+
+But contacts can still be deleted:
+
+* while merging duplicates.
+* if done so through the API.
+* after clearing the value of the "External Identifier" field.
