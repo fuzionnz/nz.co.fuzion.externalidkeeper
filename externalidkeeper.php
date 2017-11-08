@@ -68,6 +68,32 @@ function externalidkeeper_civicrm_validateForm($formName, &$fields, &$files, &$f
 
   }
 
+  // Process the "Contact Merge" form
+  if ($formName == 'CRM_Contact_Form_Merge') {
+    $mainExternalId =
+      !empty($form->_mainDetails['external_identifier']) ?
+        $form->_mainDetails['external_identifier'] : "";
+    $otherExternalId =
+      !empty($form->_otherDetails['external_identifier']) ?
+        $form->_otherDetails['external_identifier'] : "";
+    $moveExternalId =
+      !empty($fields['move_external_identifier']) ?
+        $fields['move_external_identifier'] : "";
+
+    $isDeletingMainExternalId =
+      !empty($mainExternalId) &&
+      !empty($moveExternalId) &&
+      $mainExternalId != $moveExternalId;
+    $isDeletingOtherExternalId = !empty($otherExternalId) && empty($moveExternalId);
+    $isDeletingData = $isDeletingMainExternalId || $isDeletingOtherExternalId;
+
+    if ($isDeletingData) {
+      $errorMessage = ts('Unable to merge contacts due to potential loss of "External Identifier" data. If both contacts have External Identifier values, then you won\'t be able to merge them. If only one contact has an External Identifier, then ensure that this value is preserved in the checkboxes during the merge. You can also disable this data-loss safety measure by uninstalling the "External ID Keeper" extension.');
+      $errors['external_identifier_data_loss'] = $errorMessage;
+      CRM_Core_Session::setStatus($errorMessage, ts('Unable to merge contacts'), 'error');
+    }
+  }
+
 }
 
 /**

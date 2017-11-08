@@ -8,6 +8,8 @@ This CiviCRM extension prevents deletion of contacts that have external ID value
 
 * A new permission *"CiviCRM External ID Keeper: delete contacts with external ID values"* is added to allow administrators to delete all contacts.
 
+* The "Merge contacts" form will halt the a contact merge if any External ID values are being deleted or overwritten during the merge.
+
 ## Setup
 
 1. Install this extension.
@@ -30,15 +32,16 @@ This CiviCRM extension prevents deletion of contacts that have external ID value
 
 ## Limitations
 
-The safeguard which prevents contacts from being deleted is only in place on the form to delete contacts. Thus...
+The safeguard which prevents contacts from being deleted is only in place on a couple forms.
 
-This extension effectively prevents contact deletions in the following scenarios:
+This extension effectively prevents loss of "External Identifier" data while...
 
 * clicking the "Delete" or "Delete Permanently" buttons on contact records.
 * choosing the "Delete Contacts" or "Delete Permanently" actions from a contact search.
+* manually merging two contacts.
 
-But contacts can still be deleted:
+But "External Identifier" data can still be lost...
 
-* while merging duplicates.
-* if done so through the API.
-* after clearing the value of the "External Identifier" field.
+* if contacts are deleted through the API.
+* when "force merging" during a batch merge of duplicate contacts.
+* when manually editing the "External Identifier" field.
