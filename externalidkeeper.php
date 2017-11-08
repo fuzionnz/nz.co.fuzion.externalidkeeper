@@ -29,33 +29,45 @@ function externalidkeeper_civicrm_permission(&$permissions) {
  * @param array $errors
  */
 function externalidkeeper_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
-  // Check to see if we should process
-  $userCanDeleteContactsWithExternalIds = CRM_Core_Permission::check('delete contacts with external ID values');
-  $formIsContactDelete = in_array($formName, ['CRM_Contact_Form_Task_Delete']);
-  $actionIsRestore = isset($form->_restore) && $form->_restore;
-  if ($userCanDeleteContactsWithExternalIds || !$formIsContactDelete || $actionIsRestore) {
+
+  // If user has permission to delete, then skip everything
+  if (CRM_Core_Permission::check('delete contacts with external ID values')) {
     return;
   }
 
-  $contactsWithExternalIds = [];
-  foreach ($form->_contactIds as $contactId) {
-    $contactDetails = civicrm_api3('Contact', 'get', [
-      'sequential' => 1,
-      'return' => ['display_name', 'external_identifier'],
-      'id' => $contactId,
-    ])['values'][0];
-    if (!empty($contactDetails['external_identifier'])) {
-      $contactsWithExternalIds[] = $contactDetails;
+  // Process the "Contact delete" form
+  if ($formName == 'CRM_Contact_Form_Task_Delete') {
+
+    // If we're restoring a contact, then allow it
+    if (isset($form->_restore) && $form->_restore) {
+      return;
     }
+
+    // See which contacts being deleted have external IDs
+    $contactsWithExternalIds = [];
+    foreach ($form->_contactIds as $contactId) {
+      $contactDetails = civicrm_api3('Contact', 'get', [
+        'sequential' => 1,
+        'return' => ['display_name', 'external_identifier'],
+        'id' => $contactId,
+      ])['values'][0];
+      if (!empty($contactDetails['external_identifier'])) {
+        $contactsWithExternalIds[] = $contactDetails;
+      }
+    }
+
+    // Made the form submission invalid if there are any contacts with external IDs
+    if ($contactsWithExternalIds) {
+      $errorMessage = CRM_Core_Smarty::singleton()->fetchWith(
+        'CRM/Externalidkeeper/ErrorMessages/DeleteContactsWithExternalIds.tpl',
+        ['contacts' => $contactsWithExternalIds,]
+      );
+      $errors['external_identifier_present'] = 'External identifier present';
+      CRM_Core_Session::setStatus($errorMessage, ts('Unable to delete contact(s)'), 'error');
+    }
+
   }
-  if ($contactsWithExternalIds) {
-    $errorMessage = CRM_Core_Smarty::singleton()->fetchWith(
-      'CRM/Externalidkeeper/ErrorMessages/DeleteContactsWithExternalIds.tpl',
-      ['contacts' => $contactsWithExternalIds,]
-    );
-    $errors['external_identifier_present'] = 'External identifier present';
-    CRM_Core_Session::setStatus($errorMessage, ts('Unable to delete contact(s)'), 'error');
-  }
+
 }
 
 /**
