@@ -32,8 +32,8 @@ function externalidkeeper_civicrm_validateForm($formName, &$fields, &$files, &$f
   // Check to see if we should process
   $userCanDeleteContactsWithExternalIds = CRM_Core_Permission::check('delete contacts with external ID values');
   $formIsContactDelete = in_array($formName, ['CRM_Contact_Form_Task_Delete']);
-  $actionIsDelete = !$form->_restore;
-  if ($userCanDeleteContactsWithExternalIds | !$formIsContactDelete | !$actionIsDelete) {
+  $actionIsRestore = isset($form->_restore) && $form->_restore;
+  if ($userCanDeleteContactsWithExternalIds || !$formIsContactDelete || $actionIsRestore) {
     return;
   }
 
